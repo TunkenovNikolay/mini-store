@@ -29,9 +29,9 @@ public class DeliveryController {
 
     @GetMapping("/order/{orderRefId}")
     public ResponseEntity<DeliveryDto> get(@PathVariable UUID orderRefId) {
-        log.info("GET /order/delivery/{}", orderRefId);
+        log.info("GET /delivery/order/{}", orderRefId);
         final DeliveryDto deliveryDto = deliveryService.getDeliveryByOrderRefId(orderRefId);
-        log.debug("GET /order/delivery/ - deliveryDto: {}", deliveryDto);
+        log.debug("GET /delivery/order/ - deliveryDto: {}", deliveryDto);
 
         return ResponseEntity.ok(deliveryDto);
     }
@@ -52,7 +52,7 @@ public class DeliveryController {
 
     @PutMapping("/{deliveryId}")
     public ResponseEntity<DeliveryDto> update(@PathVariable String deliveryId, @RequestBody DeliveryDto deliveryDto) {
-        log.info("PUT orders/{}", deliveryId);
+        log.info("PUT delivery/{}, deliveryDto {}", deliveryId, deliveryDto);
         final DeliveryDto updatedDelivery = deliveryService.updateDelivery(deliveryId, deliveryDto);
         log.debug("PUT delivery - {}", updatedDelivery);
 
