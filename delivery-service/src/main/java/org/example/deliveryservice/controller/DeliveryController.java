@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/delivery")
+@RequestMapping("/api/v1/delivery")
 @RequiredArgsConstructor
 public class DeliveryController {
 

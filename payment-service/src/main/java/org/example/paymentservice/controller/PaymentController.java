@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/payments")
+@RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
 public class PaymentController {
     private final PaymentService paymentService;
