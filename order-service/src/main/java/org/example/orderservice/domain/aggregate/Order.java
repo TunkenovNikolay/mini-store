@@ -8,6 +8,7 @@ import org.example.orderservice.domain.vo.CustomerId;
 import org.example.orderservice.domain.vo.Money;
 import org.example.orderservice.domain.vo.OrderId;
 import org.example.orderservice.domain.vo.ProductId;
+import org.example.orderservice.integration.payment.client.feign.dto.PaymentStatus;
 
 import java.math.BigDecimal;
 
@@ -32,6 +33,13 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.CREATED;
+
+    @Column(name = "payment_id")
+    private String paymentId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status")
+    private PaymentStatus paymentStatus;
 
     @Embedded
     @Column(nullable = false)

@@ -17,7 +17,11 @@ public enum ErrorMessage {
     ORDER_NOT_EXIST(HttpStatus.NOT_FOUND, "Order orderId=%s does not exist"),
 
     //Message
-    UNEXPECTED_ERROR_PROCESSING_MESSAGE(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error processing message: %");
+    UNEXPECTED_ERROR_PROCESSING_MESSAGE(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error processing message: %"),
+
+    // Integration with PaymentService
+    PAYMENT_CLIENT_ERROR(HttpStatus.BAD_REQUEST, "Payment service client error: %s"),
+    PAYMENT_SERVER_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Payment service server error: %s");
 
     private final HttpStatus status;
     private final String message;

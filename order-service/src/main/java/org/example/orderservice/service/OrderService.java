@@ -1,6 +1,6 @@
 package org.example.orderservice.service;
 
-import org.example.orderservice.domain.dto.CreateOrderRequest;
+import org.example.orderservice.domain.dto.OrderRequest;
 import org.example.orderservice.domain.dto.OrderDto;
 
 public interface OrderService {
@@ -12,7 +12,7 @@ public interface OrderService {
     /**
      * Создать Order
      */
-    OrderDto createOrder(CreateOrderRequest request);
+    OrderDto createOrder(OrderRequest request);
 
     /**
      * Обновить Order по orderId
