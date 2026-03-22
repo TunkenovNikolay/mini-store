@@ -1,4 +1,4 @@
-package org.example.paymentservice.service;
+package org.example.paymentservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.paymentservice.domain.PaymentStatus;
@@ -12,6 +12,7 @@ import org.example.paymentservice.exception.ErrorMessage;
 import org.example.paymentservice.exception.ServiceException;
 import org.example.paymentservice.mapper.PaymentMapper;
 import org.example.paymentservice.repository.PaymentRepository;
+import org.example.paymentservice.service.PaymentService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
