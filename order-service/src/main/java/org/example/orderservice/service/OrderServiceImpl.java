@@ -49,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
             .currency(request.getCurrency())
             .build();
 
-        PaymentDto payment = paymentFeignClientImpl.createPayment(paymentRequest);
+        PaymentDto payment = paymentFeignClientImpl.createPayment(order.getOrderId().getOrderId(), paymentRequest);
 
         savedOrder.setPaymentId(payment.getPaymentId());
         savedOrder.setPaymentStatus(payment.getStatus());

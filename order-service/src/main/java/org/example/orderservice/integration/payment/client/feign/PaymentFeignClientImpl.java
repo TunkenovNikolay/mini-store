@@ -17,9 +17,9 @@ public class PaymentFeignClientImpl {
 
     private final PaymentFeignClient paymentFeignClient;
 
-    public PaymentDto createPayment(CreatePaymentRequest createPaymentRequest) {
+    public PaymentDto createPayment(UUID uuid, CreatePaymentRequest createPaymentRequest) {
         try {
-            return paymentFeignClient.createPayment(UUID.randomUUID().toString(), createPaymentRequest);
+            return paymentFeignClient.createPayment(uuid.toString(), createPaymentRequest);
         } catch (ServiceException ex) {
             log.error("Payment error: status={}, message={}", ex.getStatus(), ex.getMessage());
 
