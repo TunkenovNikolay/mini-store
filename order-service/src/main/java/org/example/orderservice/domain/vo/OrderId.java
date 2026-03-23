@@ -12,6 +12,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderId {
-    String orderId = "ORD-" + UUID.randomUUID();
+    private UUID orderId = UUID.randomUUID(); // Храним чистый UUID
+
+    @Override
+    public String toString() {
+        return "ORD-" + orderId.toString(); // Только для отображения
+    }
 
 }

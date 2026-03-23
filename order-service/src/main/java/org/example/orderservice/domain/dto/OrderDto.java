@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.orderservice.integration.payment.client.feign.dto.PaymentStatus;
 
 import java.math.BigDecimal;
 
@@ -18,5 +19,6 @@ public class OrderDto {
     private BigDecimal amount;
     private String currency;
     private String status;
-
+    private String paymentId;
+    private PaymentStatus paymentStatus;
 }

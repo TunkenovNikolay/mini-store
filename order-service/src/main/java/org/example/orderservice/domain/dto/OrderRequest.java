@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class CreateOrderRequest {
+public class OrderRequest {
     String customerId;
     BigDecimal amount;
     String currency;

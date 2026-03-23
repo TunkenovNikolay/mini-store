@@ -14,7 +14,6 @@ public class ServiceException extends RuntimeException {
     public ServiceException(HttpStatus status, String message) {
         super(message);
         this.status = status;
-        this.message = message;
     }
 
     private String getMessage(String value) {
