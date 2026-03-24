@@ -1,5 +1,7 @@
 package org.example.orderservice.integration.payment.client.feign;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.orderservice.exception.ServiceException;
@@ -17,6 +19,8 @@ public class PaymentFeignClientImpl {
 
     private final PaymentFeignClient paymentFeignClient;
 
+    @Retry(name = "PaymentRetry")
+    @CircuitBreaker(name = "PaymentCircuitBreaker", fallbackMethod = "fallBackPayment")
     public PaymentDto createPayment(CreatePaymentRequest createPaymentRequest) {
         try {
             return paymentFeignClient.createPayment(UUID.randomUUID().toString(), createPaymentRequest);
@@ -33,6 +37,14 @@ public class PaymentFeignClientImpl {
             // 5xx и другие пробрасываем дальше (PAYMENT_SERVER_ERROR = SERVICE_UNAVAILABLE)
             throw ex;
         }
+    }
+
+    public PaymentDto fallBackPayment(CreatePaymentRequest req, Throwable t) {
+        log.warn("Payment CircuitBreaker fallback activated for inquiryRefId: {}", req.getInquiryRefId(), t);
+        return PaymentDto.builder()
+            .paymentId("fallback-" + req.getInquiryRefId())
+            .status(PaymentStatus.FAILED)
+            .build();
     }
 }
 
