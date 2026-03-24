@@ -8,17 +8,18 @@ import org.example.orderservice.integration.payment.client.feign.dto.PaymentDto;
 import org.example.orderservice.integration.payment.client.feign.dto.PaymentStatus;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class PaymentFeignClientImpl implements PaymentFeignClient {
+public class PaymentFeignClientImpl {
 
     private final PaymentFeignClient paymentFeignClient;
 
-    @Override
     public PaymentDto createPayment(CreatePaymentRequest createPaymentRequest) {
         try {
-            return paymentFeignClient.createPayment(createPaymentRequest);
+            return paymentFeignClient.createPayment(UUID.randomUUID().toString(), createPaymentRequest);
         } catch (ServiceException ex) {
             log.error("Payment error: status={}, message={}", ex.getStatus(), ex.getMessage());
 

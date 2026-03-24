@@ -1,16 +1,16 @@
 package org.example.orderservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.orderservice.domain.OrderStatus;
 import org.example.orderservice.domain.aggregate.Order;
-import org.example.orderservice.domain.dto.OrderRequest;
 import org.example.orderservice.domain.dto.OrderDto;
+import org.example.orderservice.domain.dto.OrderRequest;
 import org.example.orderservice.domain.vo.CustomerId;
 import org.example.orderservice.domain.vo.Money;
-import org.example.orderservice.domain.OrderStatus;
 import org.example.orderservice.domain.vo.ProductId;
 import org.example.orderservice.exception.ErrorMessage;
 import org.example.orderservice.exception.ServiceException;
-import org.example.orderservice.integration.payment.client.feign.PaymentFeignClient;
+import org.example.orderservice.integration.payment.client.feign.PaymentFeignClientImpl;
 import org.example.orderservice.integration.payment.client.feign.dto.CreatePaymentRequest;
 import org.example.orderservice.integration.payment.client.feign.dto.PaymentDto;
 import org.example.orderservice.mapper.OrderMapper;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final PaymentFeignClient paymentFeignClient;
+    private final PaymentFeignClientImpl paymentFeignClientImpl;
 
     @Override
     public OrderDto getOrder(String orderId) {
@@ -49,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
             .currency(request.getCurrency())
             .build();
 
-        PaymentDto payment = paymentFeignClient.createPayment(paymentRequest);
+        PaymentDto payment = paymentFeignClientImpl.createPayment(paymentRequest);
 
         savedOrder.setPaymentId(payment.getPaymentId());
         savedOrder.setPaymentStatus(payment.getStatus());
