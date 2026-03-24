@@ -11,3 +11,31 @@ spring:
       enabled: true
 server:
   port: 8081
+
+resilience4j:
+  retry:
+    instances:
+      PaymentRetry:
+        maxAttempts: 3                  # всего 3 попытки (1 исходная + 2 retry)
+        waitDuration: 500ms             # базовая задержка
+        enableExponentialBackoff: true  # экспоненциальный backoff
+        exponentialBackoffMultiplier: 2 # 500ms → 1s → 2s
+        retryExceptions:
+          - feign.FeignException.InternalServerError  # 500
+          - feign.FeignException.ServiceUnavailable    # 503
+          - feign.FeignException.GatewayTimeout        # 504
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+  circuitbreaker:
+    instances:
+      PaymentCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        recordExceptions:
+          - feign.FeignException.InternalServerError  # 500
+          - feign.FeignException.ServiceUnavailable    # 503
+          - feign.FeignException.GatewayTimeout        # 504
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
