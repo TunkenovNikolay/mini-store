@@ -26,6 +26,7 @@ resilience4j:
           - feign.FeignException.GatewayTimeout        # 504
           - java.net.ConnectException
           - java.net.SocketTimeoutException
+
   circuitbreaker:
     instances:
       PaymentCircuitBreaker:
@@ -39,3 +40,20 @@ resilience4j:
           - feign.FeignException.GatewayTimeout        # 504
           - java.net.ConnectException
           - java.net.SocketTimeoutException
+
+  bulkhead:
+    instances:
+      doctorClientBulkhead:
+        maxConcurrentCalls: 5 # Максимальное число параллельных вызовов, разрешенных одновременно
+        maxWaitDuration: 0s # Время ожидания, если все слоты заняты; 0 -- отказ сразу, без ожидания
+
+  ratelimiter:
+    instances:
+      PaymentRateLimiter:
+        limit-for-period: 10 # Количество разрешений за период
+        limit-refresh-period: # Период обновления лимита
+          seconds: 60
+        timeout-duration: # Максимальное время ожидания разрешения
+          seconds: 1
+        registerHealthIndicator: true    # Регистрировать индикатор здоровья для Spring Boot Actuator
+        eventConsumerBufferSize: 100     # Размер буфера для событий RateLimiter

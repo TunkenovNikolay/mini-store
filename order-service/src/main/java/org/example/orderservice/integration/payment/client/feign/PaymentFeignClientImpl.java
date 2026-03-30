@@ -1,6 +1,8 @@
 package org.example.orderservice.integration.payment.client.feign;
 
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,8 @@ public class PaymentFeignClientImpl {
 
     @Retry(name = "PaymentRetry")
     @CircuitBreaker(name = "PaymentCircuitBreaker", fallbackMethod = "fallBackPayment")
+    @Bulkhead(name = "PaymentBulkhead")
+    @RateLimiter(name = "PaymentRateLimiter")
     public PaymentDto createPayment(CreatePaymentRequest createPaymentRequest) {
         try {
             return paymentFeignClient.createPayment(UUID.randomUUID().toString(), createPaymentRequest);
