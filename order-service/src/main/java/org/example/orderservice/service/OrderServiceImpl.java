@@ -10,9 +10,9 @@ import org.example.orderservice.domain.vo.Money;
 import org.example.orderservice.domain.vo.ProductId;
 import org.example.orderservice.exception.ErrorMessage;
 import org.example.orderservice.exception.ServiceException;
-import org.example.orderservice.integration.payment.client.feign.PaymentFeignClientImpl;
-import org.example.orderservice.integration.payment.client.feign.dto.CreatePaymentRequest;
-import org.example.orderservice.integration.payment.client.feign.dto.PaymentDto;
+import org.example.orderservice.integration.payment.client.PaymentClient;
+import org.example.orderservice.integration.payment.dto.PaymentRequest;
+import org.example.orderservice.integration.payment.dto.PaymentResponse;
 import org.example.orderservice.mapper.OrderMapper;
 import org.example.orderservice.repository.OrderRepository;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final PaymentFeignClientImpl paymentFeignClientImpl;
+    private final PaymentClient paymentClient;
 
     @Override
     public OrderDto getOrder(String orderId) {
@@ -43,13 +43,13 @@ public class OrderServiceImpl implements OrderService {
         Order order = new Order(money, customerId, productId);
         Order savedOrder = orderRepository.save(order);
 
-        CreatePaymentRequest paymentRequest = CreatePaymentRequest.builder()
+        PaymentRequest paymentRequest = PaymentRequest.builder()
             .inquiryRefId(savedOrder.getOrderId().getOrderId())
             .amount(request.getAmount())
             .currency(request.getCurrency())
             .build();
 
-        PaymentDto payment = paymentFeignClientImpl.createPayment(paymentRequest);
+        PaymentResponse payment = paymentClient.createPayment(paymentRequest);
 
         savedOrder.setPaymentId(payment.getPaymentId());
         savedOrder.setPaymentStatus(payment.getStatus());

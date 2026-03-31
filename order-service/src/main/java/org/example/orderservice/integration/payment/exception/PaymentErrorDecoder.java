@@ -1,10 +1,11 @@
-package org.example.orderservice.integration.payment.client.feign.exception;
+package org.example.orderservice.integration.payment.exception;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.example.orderservice.exception.ErrorMessage;
 import org.example.orderservice.exception.ServiceException;
+import org.springframework.http.HttpStatus;
 
 @Slf4j
 public class PaymentErrorDecoder implements ErrorDecoder {
@@ -16,9 +17,11 @@ public class PaymentErrorDecoder implements ErrorDecoder {
             log.warn("Payment 4xx error: method={}, status={}",
                 methodKey, response.status());
 
+            // Создаем ServiceException с HTTP статусом
             return new ServiceException(
+                HttpStatus.valueOf(response.status()),  // ← передаем HttpStatus
                 ErrorMessage.PAYMENT_CLIENT_ERROR,
-                String.valueOf(response.status())
+                "Payment service returned " + response.status()
             );
         }
         return defaultDecoder.decode(methodKey, response);

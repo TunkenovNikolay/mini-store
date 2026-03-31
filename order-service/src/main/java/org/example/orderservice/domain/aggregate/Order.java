@@ -8,7 +8,7 @@ import org.example.orderservice.domain.vo.CustomerId;
 import org.example.orderservice.domain.vo.Money;
 import org.example.orderservice.domain.vo.OrderId;
 import org.example.orderservice.domain.vo.ProductId;
-import org.example.orderservice.integration.payment.client.feign.dto.PaymentStatus;
+import org.example.orderservice.integration.payment.dto.PaymentStatus;
 
 import java.math.BigDecimal;
 
