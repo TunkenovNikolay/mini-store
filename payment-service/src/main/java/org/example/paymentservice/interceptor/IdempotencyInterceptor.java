@@ -8,6 +8,7 @@ import org.example.paymentservice.domain.IdempotencyStatus;
 import org.example.paymentservice.domain.entity.IdempotencyKey;
 import org.example.paymentservice.exception.ServiceException;
 import org.example.paymentservice.service.IdempotencyService;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.util.ContentCachingResponseWrapper;
-import org.springframework.lang.NonNull;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -32,8 +32,8 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response,
-                             Object handler) throws Exception {
+                             @NotNull HttpServletResponse response,
+                             @NotNull Object handler) throws Exception {
         HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
         if (HttpMethod.POST.equals(method)) {
@@ -91,8 +91,8 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request,
-                                HttpServletResponse response,
-                                Object handler, @Nullable Exception ex) throws Exception {
+                                @NotNull HttpServletResponse response,
+                                @NotNull Object handler, @Nullable Exception ex) throws Exception {
         HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
         if (HttpMethod.POST.equals(method)) {
