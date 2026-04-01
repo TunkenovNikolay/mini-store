@@ -1,4 +1,4 @@
-package org.example.orderservice.integration.payment.client.feign.dto;
+package org.example.orderservice.integration.payment.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class CreatePaymentRequest {
+public class PaymentRequest {
     private UUID inquiryRefId;
     private BigDecimal amount;
     private String currency;

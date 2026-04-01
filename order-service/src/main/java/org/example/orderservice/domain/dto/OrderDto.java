@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.orderservice.integration.payment.client.feign.dto.PaymentStatus;
+import org.example.orderservice.integration.payment.dto.PaymentStatus;
 
 import java.math.BigDecimal;
 

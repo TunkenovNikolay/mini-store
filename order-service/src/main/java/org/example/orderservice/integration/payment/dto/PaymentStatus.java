@@ -1,4 +1,4 @@
-package org.example.orderservice.integration.payment.client.feign.dto;
+package org.example.orderservice.integration.payment.dto;
 
 public enum PaymentStatus {
     PENDING,      // Ожидает обработки

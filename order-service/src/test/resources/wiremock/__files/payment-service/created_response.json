@@ -1,0 +1,9 @@
+{
+  "id": 1,
+  "paymentId": "pay_123456789",
+  "inquiryRefId": "3a0f787d-4afe-4fd7-b1d6-a91728a239d1",
+  "amount": 100,
+  "currency": "RUB",
+  "transactionRefId": "5b1e8f9c-2d3a-4e5f-8a7b-6c9d8e7f6a5b",
+  "status": "PROCESSING"
+}

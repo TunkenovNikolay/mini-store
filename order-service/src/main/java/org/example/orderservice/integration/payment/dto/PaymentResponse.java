@@ -1,4 +1,4 @@
-package org.example.orderservice.integration.payment.client.feign.dto;
+package org.example.orderservice.integration.payment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentDto {
+public class PaymentResponse {
     private Long id;
     private String paymentId;
     private UUID inquiryRefId;

@@ -14,6 +14,7 @@ public class ServiceException extends RuntimeException {
     public ServiceException(HttpStatus status, String message) {
         super(message);
         this.status = status;
+        this.message = message;
     }
 
     private String getMessage(String value) {
@@ -32,4 +33,7 @@ public class ServiceException extends RuntimeException {
         this.message = getMessage(value);
     }
 
+    public ServiceException(HttpStatus status, ErrorMessage error, String message) {
+        this(status, error.getMessage() + ": " + message);
+    }
 }

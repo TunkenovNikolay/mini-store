@@ -1,4 +1,4 @@
-package org.example.orderservice.integration.payment.client.feign;
+package org.example.orderservice.integration.payment.client;
 
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -7,9 +7,10 @@ import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.orderservice.exception.ServiceException;
-import org.example.orderservice.integration.payment.client.feign.dto.CreatePaymentRequest;
-import org.example.orderservice.integration.payment.client.feign.dto.PaymentDto;
-import org.example.orderservice.integration.payment.client.feign.dto.PaymentStatus;
+import org.example.orderservice.integration.payment.client.feign.PaymentFeignClient;
+import org.example.orderservice.integration.payment.dto.PaymentRequest;
+import org.example.orderservice.integration.payment.dto.PaymentResponse;
+import org.example.orderservice.integration.payment.dto.PaymentStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class PaymentFeignClientImpl {
+public class PaymentClient {
 
     private final PaymentFeignClient paymentFeignClient;
 
@@ -25,15 +26,15 @@ public class PaymentFeignClientImpl {
     @CircuitBreaker(name = "PaymentCircuitBreaker", fallbackMethod = "fallBackPayment")
     @Bulkhead(name = "PaymentBulkhead")
     @RateLimiter(name = "PaymentRateLimiter")
-    public PaymentDto createPayment(CreatePaymentRequest createPaymentRequest) {
+    public PaymentResponse createPayment(PaymentRequest paymentRequest) {
         try {
-            return paymentFeignClient.createPayment(UUID.randomUUID().toString(), createPaymentRequest);
+            return paymentFeignClient.createPayment(UUID.randomUUID().toString(), paymentRequest);
         } catch (ServiceException ex) {
             log.error("Payment error: status={}, message={}", ex.getStatus(), ex.getMessage());
 
             // ErrorDecoder уже пометил 4xx через PAYMENT_CLIENT_ERROR (BAD_REQUEST)
             if (ex.getStatus().is4xxClientError()) {
-                return PaymentDto.builder()
+                return PaymentResponse.builder()
                     .paymentId("failed-" + System.currentTimeMillis())
                     .status(PaymentStatus.FAILED)
                     .build();
@@ -43,9 +44,9 @@ public class PaymentFeignClientImpl {
         }
     }
 
-    public PaymentDto fallBackPayment(CreatePaymentRequest req, Throwable t) {
+    public PaymentResponse fallBackPayment(PaymentRequest req, Throwable t) {
         log.warn("Payment CircuitBreaker fallback activated for inquiryRefId: {}", req.getInquiryRefId(), t);
-        return PaymentDto.builder()
+        return PaymentResponse.builder()
             .paymentId("fallback-" + req.getInquiryRefId())
             .status(PaymentStatus.FAILED)
             .build();
