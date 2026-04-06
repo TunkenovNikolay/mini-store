@@ -12,6 +12,7 @@ import java.util.UUID;
 public class PaymentDto {
     private Long id;
     private String paymentId;
+    private String customerId;
     private UUID inquiryRefId;
     private BigDecimal amount;
     private String currency;

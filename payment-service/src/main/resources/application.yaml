@@ -1,0 +1,6 @@
+rabbitmq:
+  service:
+    order:
+      exchange-response-name: payment-response-exchange
+      queue-response-name: payment-response-queue
+      queue-request-name: payment-request-queue

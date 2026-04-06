@@ -61,3 +61,10 @@ resilience4j:
 integration:
   payment-service:
     base-url: http://localhost:8080/api/v1/payments
+
+rabbitmq:
+  service:
+    payment:
+      exchange-request-name: payment-request-exchange
+      queue-request-name: payment-request-queue
+      queue-response-name: payment-response-queue

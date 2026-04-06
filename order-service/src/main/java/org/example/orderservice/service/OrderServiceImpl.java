@@ -1,6 +1,7 @@
 package org.example.orderservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.orderservice.domain.OrderStatus;
 import org.example.orderservice.domain.aggregate.Order;
 import org.example.orderservice.domain.dto.OrderDto;
@@ -10,20 +11,23 @@ import org.example.orderservice.domain.vo.Money;
 import org.example.orderservice.domain.vo.ProductId;
 import org.example.orderservice.exception.ErrorMessage;
 import org.example.orderservice.exception.ServiceException;
-import org.example.orderservice.integration.payment.client.PaymentClient;
+import org.example.orderservice.integration.payment.amqp.config.properties.RabbitMqPaymentServiceProperties;
 import org.example.orderservice.integration.payment.dto.PaymentRequest;
-import org.example.orderservice.integration.payment.dto.PaymentResponse;
+import org.example.orderservice.integration.payment.dto.PaymentStatus;
 import org.example.orderservice.mapper.OrderMapper;
 import org.example.orderservice.repository.OrderRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final PaymentClient paymentClient;
+    private final RabbitTemplate rabbitTemplate;
+    private final RabbitMqPaymentServiceProperties rabbitMqPaymentServiceProperties;
 
     @Override
     public OrderDto getOrder(String orderId) {
@@ -35,27 +39,39 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto createOrder(OrderRequest request) {
+        Order order = createAndSaveOrder(request);
+        sendPayment(order);
 
+        return orderMapper.toOrderDto(order);
+    }
+
+    private Order createAndSaveOrder(OrderRequest request) {
         CustomerId customerId = new CustomerId(request.getCustomerId());
         Money money = new Money(request.getAmount(), request.getCurrency());
         ProductId productId = new ProductId(request.getProductId());
 
         Order order = new Order(money, customerId, productId);
-        Order savedOrder = orderRepository.save(order);
+        order.setPaymentStatus(PaymentStatus.PENDING);
 
+        return orderRepository.save(order);
+    }
+
+    private void sendPayment(Order order) {
         PaymentRequest paymentRequest = PaymentRequest.builder()
-            .inquiryRefId(savedOrder.getOrderId().getOrderId())
-            .amount(request.getAmount())
-            .currency(request.getCurrency())
+            .orderId(order.getOrderId().getOrderId().toString())
+            .customerId(order.getCustomerId().getCustomerId())
+            .amount(order.getMoney().getAmount())
+            .currency(order.getMoney().getCurrency())
             .build();
 
-        PaymentResponse payment = paymentClient.createPayment(paymentRequest);
+        rabbitTemplate.convertAndSend(
+            rabbitMqPaymentServiceProperties.exchangeRequestName(),
+            rabbitMqPaymentServiceProperties.exchangeRequestName(),
+            paymentRequest
+        );
 
-        savedOrder.setPaymentId(payment.getPaymentId());
-        savedOrder.setPaymentStatus(payment.getStatus());
-        orderRepository.save(savedOrder);
-
-        return orderMapper.toOrderDto(savedOrder);
+        log.info("Sent payment request for orderId={}",
+            order.getId());
     }
 
 
@@ -78,6 +94,15 @@ public class OrderServiceImpl implements OrderService {
             .orElseThrow(() -> new ServiceException(ErrorMessage.ORDER_NOT_EXIST, orderId));
 
         orderRepository.delete(existingOrder);
+    }
+
+    @Override
+    public void updatePaymentStatus(String orderId, PaymentStatus paymentStatus) {
+        Order order = orderRepository.findByOrderId_OrderId(orderId)
+            .orElseThrow(() -> new ServiceException(ErrorMessage.ORDER_NOT_EXIST, orderId));
+        order.setPaymentStatus(paymentStatus);
+
+        orderRepository.save(order);
     }
 
 }
