@@ -4,10 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.orderservice.domain.OrderStatus;
-import org.example.orderservice.domain.vo.CustomerId;
-import org.example.orderservice.domain.vo.Money;
-import org.example.orderservice.domain.vo.OrderId;
-import org.example.orderservice.domain.vo.ProductId;
+import org.example.orderservice.domain.vo.*;
+import org.example.orderservice.integration.payment.dto.DeliveryStatus;
 import org.example.orderservice.integration.payment.dto.PaymentStatus;
 
 import java.math.BigDecimal;
@@ -41,6 +39,10 @@ public class Order {
     @Column(name = "payment_status")
     private PaymentStatus paymentStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_status")
+    private DeliveryStatus deliveryStatus;
+
     @Embedded
     @Column(nullable = false)
     private CustomerId customerId;
@@ -49,10 +51,15 @@ public class Order {
     @Column(nullable = false)
     private ProductId productId;
 
-    public Order(Money money, CustomerId customerId, ProductId productId) {
+    @Embedded
+    @Column(nullable = false)
+    private DeliveryAddress address;
+
+    public Order(Money money, CustomerId customerId, ProductId productId, DeliveryAddress address) {
         this.money = money != null ? money : new Money(BigDecimal.ZERO, "USD");
         this.customerId = customerId;
         this.productId = productId;
+        this.address = address;
     }
 
 }

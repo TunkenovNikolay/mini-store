@@ -1,0 +1,43 @@
+server:
+  port: 8083
+spring:
+  datasource:
+    url: jdbc:h2:mem:deliverydb
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  h2:
+    console:
+      enabled: true
+  kafka:
+    bootstrap-servers: localhost:9093 # Адрес и порт Kafka-брокеров, к которым будет подключаться приложение
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer # Сериализация ключа сообщений в строку
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer # Сериализация значения сообщений в JSON
+    listener:
+      ack-mode: manual # Режим подтверждения обработки сообщений — вручную
+      observation-enabled: true # Включение наблюдения для слушателей Kafka
+    template:
+      observation-enabled: true # Включение наблюдения для KafkaTemplate
+    consumer:
+      group-id: delivery-consumers # Идентификатор группы потребителей
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer # Десериализация ключа из строки
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer # Десериализация значения из JSON
+      auto-offset-reset: earliest # Начинать чтение с самого раннего сообщения при отсутствии смещения
+      enable-auto-commit: false # Отключение автоматического подтверждения смещений для ручного контроля
+      properties:
+        spring.json.use.type.headers: false # Отключение использования заголовков типа JSON
+        spring.json.trusted.packages: "*" # Разрешение доверять любым пакетам при десериализации
+        spring.json.value.default.type: "org.example.deliveryservice.integration.order.dto.DeliveryRequestMessage" # Тип по умолчанию для десериализации JSON
+
+kafka:
+  service:
+    delivery:
+      order-payment-topic: order.payment
+      delivery-confirmation-topic: delivery.confirmation

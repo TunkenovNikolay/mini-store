@@ -1,5 +1,6 @@
 package org.example.deliveryservice.service;
 
+import org.example.deliveryservice.domain.aggregate.Delivery;
 import org.example.deliveryservice.domain.dto.CreateDeliveryRequest;
 import org.example.deliveryservice.domain.dto.DeliveryDto;
 
@@ -10,22 +11,22 @@ public interface DeliveryService {
     /**
      * Получить Delivery по deliveryId
      */
-    DeliveryDto getDeliveryByDeliveryId(String deliveryId);
+    Delivery getDeliveryByDeliveryId(String deliveryId);
 
     /**
      * Получить Delivery по orderRefId
      */
-    DeliveryDto getDeliveryByOrderRefId(UUID orderRefId);
+    Delivery getDeliveryByOrderRefId(UUID orderRefId);
 
     /**
      * Создать Delivery
      */
-    DeliveryDto createDelivery(CreateDeliveryRequest request);
+    Delivery createDelivery(CreateDeliveryRequest request);
 
     /**
      * Обновить Delivery по deliveryId
      */
-    DeliveryDto updateDelivery(String deliveryId, DeliveryDto deliveryDto);
+    Delivery updateDelivery(String deliveryId, DeliveryDto deliveryDto);
 
     /**
      * Удалить Delivery по deliveryId

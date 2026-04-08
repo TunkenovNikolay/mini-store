@@ -1,6 +1,7 @@
 package org.example.paymentservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.paymentservice.domain.IdempotencyStatus;
 import org.example.paymentservice.domain.entity.IdempotencyKey;
 import org.example.paymentservice.repository.IdempotencyRepository;
 import org.example.paymentservice.service.IdempotencyService;
@@ -16,7 +17,7 @@ public class IdempotencyServiceImpl implements IdempotencyService {
 
     @Override
     public void createPendingKey(String key) {
-
+        idempotencyRepository.save(new IdempotencyKey(key, IdempotencyStatus.PENDING));
     }
 
     @Override
@@ -26,6 +27,6 @@ public class IdempotencyServiceImpl implements IdempotencyService {
 
     @Override
     public void markAsCompleted(String key, String responseData, int statusCode) {
-
+        idempotencyRepository.save(new IdempotencyKey(key, IdempotencyStatus.values()[statusCode]));
     }
 }

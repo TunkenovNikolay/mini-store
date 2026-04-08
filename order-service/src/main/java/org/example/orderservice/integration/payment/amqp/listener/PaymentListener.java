@@ -27,5 +27,6 @@ public class PaymentListener {
         log.info("Received payment request: {}", paymentResponseMessage);
         orderService.updatePaymentStatus(paymentResponseMessage.orderId(), paymentResponseMessage.paymentStatus());
         log.info("Successfully updated order status for orderId={}", paymentResponseMessage.orderId());
+
     }
 }

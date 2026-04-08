@@ -9,7 +9,6 @@ import org.example.paymentservice.domain.vo.Money;
 import org.example.paymentservice.domain.vo.TransactionRefId;
 import org.example.paymentservice.exception.ErrorMessage;
 import org.example.paymentservice.exception.ServiceException;
-import org.example.paymentservice.mapper.PaymentMapper;
 import org.example.paymentservice.repository.PaymentRepository;
 import org.example.paymentservice.service.PaymentService;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         TransactionRefId transactionRefId = new TransactionRefId(UUID.randomUUID());
         savedPayment.setTransactionRefId(transactionRefId);
-        savedPayment.setStatus(PaymentStatus.PROCESSING);
+        savedPayment.setStatus(PaymentStatus.COMPLETED);
 
         return savedPayment;
     }

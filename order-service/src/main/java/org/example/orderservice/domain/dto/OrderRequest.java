@@ -10,4 +10,7 @@ public class OrderRequest {
     BigDecimal amount;
     String currency;
     String productId;
+    String street;
+    String city;
+    String postalCode;
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.deliveryservice.controller.docs.DeliveryControllerDoc;
 import org.example.deliveryservice.domain.dto.CreateDeliveryRequest;
 import org.example.deliveryservice.domain.dto.DeliveryDto;
+import org.example.deliveryservice.mapper.DeliveryMapper;
 import org.example.deliveryservice.service.DeliveryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +19,13 @@ import java.util.UUID;
 public class DeliveryController implements DeliveryControllerDoc {
 
     private final DeliveryService deliveryService;
+    private final DeliveryMapper deliveryMapper;
 
     @GetMapping("/{deliveryId}")
     @Override
     public ResponseEntity<DeliveryDto> get(@PathVariable String deliveryId) {
         log.info("GET delivery/{}", deliveryId);
-        final DeliveryDto deliveryDto = deliveryService.getDeliveryByDeliveryId(deliveryId);
+        final DeliveryDto deliveryDto = deliveryMapper.toDeliveryDto(deliveryService.getDeliveryByDeliveryId(deliveryId));
         log.debug("GET /delivery/ - deliveryDto: {}", deliveryDto);
 
         return ResponseEntity.ok(deliveryDto);
@@ -33,7 +35,7 @@ public class DeliveryController implements DeliveryControllerDoc {
     @Override
     public ResponseEntity<DeliveryDto> get(@PathVariable UUID orderRefId) {
         log.info("GET /delivery/order/{}", orderRefId);
-        final DeliveryDto deliveryDto = deliveryService.getDeliveryByOrderRefId(orderRefId);
+        final DeliveryDto deliveryDto = deliveryMapper.toDeliveryDto(deliveryService.getDeliveryByOrderRefId(orderRefId));
         log.debug("GET /delivery/order/ - deliveryDto: {}", deliveryDto);
 
         return ResponseEntity.ok(deliveryDto);
@@ -48,7 +50,7 @@ public class DeliveryController implements DeliveryControllerDoc {
             createDeliveryRequest.getStreet(),
             createDeliveryRequest.getCity(),
             createDeliveryRequest.getPostalCode());
-        final DeliveryDto newDeliveryDto = deliveryService.createDelivery(createDeliveryRequest);
+        final DeliveryDto newDeliveryDto = deliveryMapper.toDeliveryDto(deliveryService.createDelivery(createDeliveryRequest));
         log.debug("POST delivery - created: {}", newDeliveryDto);
 
         return ResponseEntity.ok(newDeliveryDto);
@@ -58,7 +60,7 @@ public class DeliveryController implements DeliveryControllerDoc {
     @Override
     public ResponseEntity<DeliveryDto> update(@PathVariable String deliveryId, @RequestBody DeliveryDto deliveryDto) {
         log.info("PUT delivery/{}, deliveryDto {}", deliveryId, deliveryDto);
-        final DeliveryDto updatedDelivery = deliveryService.updateDelivery(deliveryId, deliveryDto);
+        final DeliveryDto updatedDelivery = deliveryMapper.toDeliveryDto(deliveryService.updateDelivery(deliveryId, deliveryDto));
         log.debug("PUT delivery - {}", updatedDelivery);
 
         return ResponseEntity.ok(updatedDelivery);
