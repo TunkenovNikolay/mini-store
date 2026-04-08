@@ -5,7 +5,6 @@ import org.example.paymentservice.domain.PaymentStatus;
 import org.example.paymentservice.domain.aggregate.Payment;
 import org.example.paymentservice.domain.dto.CreatePaymentRequest;
 import org.example.paymentservice.domain.dto.PaymentDto;
-import org.example.paymentservice.domain.vo.InquiryRefId;
 import org.example.paymentservice.domain.vo.Money;
 import org.example.paymentservice.domain.vo.TransactionRefId;
 import org.example.paymentservice.exception.ErrorMessage;
@@ -23,22 +22,19 @@ import java.util.UUID;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final PaymentMapper paymentMapper;
 
     @Override
-    public PaymentDto getPayment(String paymentId) {
+    public Payment getPayment(String paymentId) {
         return paymentRepository.findByPaymentId_PaymentId(paymentId)
-            .map(paymentMapper::toPaymentDto)
             .orElseThrow(() -> new ServiceException(ErrorMessage.PAYMENT_NOT_EXIST, paymentId));
     }
 
     @Override
     @Transactional()
-    public PaymentDto createPayment(CreatePaymentRequest request) {
-        InquiryRefId inquiryRefId = new InquiryRefId(request.getInquiryRefId());
+    public Payment createPayment(CreatePaymentRequest request) {
         Money money = new Money(request.getAmount(), request.getCurrency());
 
-        Payment payment = new Payment(money, inquiryRefId);
+        Payment payment = new Payment(money);
 
         Payment savedPayment = paymentRepository.save(payment);
 
@@ -46,11 +42,11 @@ public class PaymentServiceImpl implements PaymentService {
         savedPayment.setTransactionRefId(transactionRefId);
         savedPayment.setStatus(PaymentStatus.PROCESSING);
 
-        return paymentMapper.toPaymentDto(savedPayment);
+        return savedPayment;
     }
 
     @Override
-    public PaymentDto updatePayment(String paymentId, PaymentDto paymentDto) {
+    public Payment updatePayment(String paymentId, PaymentDto paymentDto) {
         Payment existingPayment = paymentRepository.findByPaymentId_PaymentId(paymentId)
             .orElseThrow(() -> new ServiceException(ErrorMessage.PAYMENT_NOT_EXIST, paymentId));
 
@@ -58,7 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         existingPayment.setMoney(money);
 
-        return paymentMapper.toPaymentDto(paymentRepository.save(existingPayment));
+        return paymentRepository.save(existingPayment);
     }
 
     @Override

@@ -29,11 +29,17 @@ public class Payment {
     @Embedded
     @Column(nullable = false)
     private Money money = new Money(BigDecimal.ZERO, "USD");
-    ;
 
     @Embedded
-    @Column(nullable = false)
+    @Column
     private InquiryRefId inquiryRefId;
+
+    @Column
+    private String orderId;
+
+    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String customerId;
 
     @Embedded
     private TransactionRefId transactionRefId;
@@ -42,9 +48,8 @@ public class Payment {
     @Column(nullable = false)
     private PaymentStatus status = PaymentStatus.PENDING;
 
-    public Payment(Money money, InquiryRefId inquiryRefId) {
+    public Payment(Money money) {
         this.money = money != null ? money : new Money();
-        this.inquiryRefId = inquiryRefId;
     }
 
 }
