@@ -1,19 +1,18 @@
-package org.example.deliveryservice.domain.vo;
+package org.example.orderservice.domain.vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * orderId.orderId из order-service
- */
 @Embeddable
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRefId {
+public class DeliveryAddress {
 
-    private String OrderRefId;
+    private String street;
+    private String city;
+    private String postalCode;
 
 }

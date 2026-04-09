@@ -7,16 +7,21 @@ import org.example.orderservice.domain.aggregate.Order;
 import org.example.orderservice.domain.dto.OrderDto;
 import org.example.orderservice.domain.dto.OrderRequest;
 import org.example.orderservice.domain.vo.CustomerId;
+import org.example.orderservice.domain.vo.DeliveryAddress;
 import org.example.orderservice.domain.vo.Money;
 import org.example.orderservice.domain.vo.ProductId;
 import org.example.orderservice.exception.ErrorMessage;
 import org.example.orderservice.exception.ServiceException;
 import org.example.orderservice.integration.payment.amqp.config.properties.RabbitMqPaymentServiceProperties;
+import org.example.orderservice.integration.payment.dto.DeliveryRequestMessage;
+import org.example.orderservice.integration.payment.dto.DeliveryStatus;
 import org.example.orderservice.integration.payment.dto.PaymentRequest;
 import org.example.orderservice.integration.payment.dto.PaymentStatus;
 import org.example.orderservice.mapper.OrderMapper;
 import org.example.orderservice.repository.OrderRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,30 +33,37 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitMqPaymentServiceProperties rabbitMqPaymentServiceProperties;
+    private final KafkaTemplate<String, DeliveryRequestMessage> kafkaTemplate;
+
+    @Value("${kafka.service.order.order-payment-topic}")
+    private String appointmentBookedTopic;
 
     @Override
-    public OrderDto getOrder(String orderId) {
+    public Order getOrder(String orderId) {
         return orderRepository.findByOrderId_OrderId(orderId)
-            .map(orderMapper::toOrderDto)
             .orElseThrow(() -> new ServiceException(ErrorMessage.ORDER_NOT_EXIST, orderId));
     }
 
     @Override
     @Transactional
-    public OrderDto createOrder(OrderRequest request) {
+    public Order createOrder(OrderRequest request) {
         Order order = createAndSaveOrder(request);
         sendPayment(order);
 
-        return orderMapper.toOrderDto(order);
+        return order;
     }
 
     private Order createAndSaveOrder(OrderRequest request) {
         CustomerId customerId = new CustomerId(request.getCustomerId());
         Money money = new Money(request.getAmount(), request.getCurrency());
         ProductId productId = new ProductId(request.getProductId());
+        DeliveryAddress deliveryAddress = new DeliveryAddress(
+            request.getStreet(),
+            request.getCity(),
+            request.getPostalCode());
 
-        Order order = new Order(money, customerId, productId);
-        order.setPaymentStatus(PaymentStatus.PENDING);
+        Order order = new Order(money, customerId, productId, deliveryAddress);
+        order.setPaymentStatus(PaymentStatus.PROCESSING);
 
         return orderRepository.save(order);
     }
@@ -76,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public OrderDto updateOrder(String orderId, OrderDto orderDto) {
+    public Order updateOrder(String orderId, OrderDto orderDto) {
         Order existingOrder = orderRepository.findByOrderId_OrderId(orderId)
             .orElseThrow(() -> new ServiceException(ErrorMessage.ORDER_NOT_EXIST, orderId));
 
@@ -85,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
         existingOrder.setMoney(money);
         existingOrder.setStatus(OrderStatus.valueOf(orderDto.getStatus()));
 
-        return orderMapper.toOrderDto(orderRepository.save(existingOrder));
+        return orderRepository.save(existingOrder);
     }
 
     @Override
@@ -101,6 +113,24 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findByOrderId_OrderId(orderId)
             .orElseThrow(() -> new ServiceException(ErrorMessage.ORDER_NOT_EXIST, orderId));
         order.setPaymentStatus(paymentStatus);
+
+        orderRepository.save(order);
+
+        if (paymentStatus == PaymentStatus.COMPLETED) {
+            sendOrderPaymentMessage(order);
+        }
+    }
+
+    private void sendOrderPaymentMessage(Order order) {
+        DeliveryRequestMessage deliveryRequestMessage = orderMapper.toDeliveryRequestMessage(order);
+        kafkaTemplate.send(appointmentBookedTopic, order.getId().toString(), deliveryRequestMessage);
+    }
+
+    @Override
+    public void updateDeliveryStatus(String orderRefId, DeliveryStatus deliveryStatus) {
+        Order order = orderRepository.findByOrderId_OrderId(orderRefId)
+            .orElseThrow(() -> new ServiceException(ErrorMessage.ORDER_NOT_EXIST, orderRefId));
+        order.setDeliveryStatus(deliveryStatus);
 
         orderRepository.save(order);
     }

@@ -4,15 +4,13 @@ import lombok.Builder;
 import lombok.Data;
 import org.example.deliveryservice.domain.DeliveryStatus;
 
-import java.util.UUID;
-
 @Data
 @Builder
 public class DeliveryDto {
 
     private Long id;
     private String deliveryId;
-    private UUID orderRefId;
+    private String orderRefId;
     private String paymentRefId;
     private String street;
     private String city;

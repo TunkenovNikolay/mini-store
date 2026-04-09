@@ -23,7 +23,7 @@ public class PaymentClient {
     private final PaymentFeignClient paymentFeignClient;
 
     @Retry(name = "PaymentRetry")
-    @CircuitBreaker(name = "PaymentCircuitBreaker", fallbackMethod = "fallBackPayment")
+    @CircuitBreaker(name = "PaymentCircuitBreaker")
     @Bulkhead(name = "PaymentBulkhead")
     @RateLimiter(name = "PaymentRateLimiter")
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
@@ -42,14 +42,6 @@ public class PaymentClient {
             // 5xx и другие пробрасываем дальше (PAYMENT_SERVER_ERROR = SERVICE_UNAVAILABLE)
             throw ex;
         }
-    }
-
-    public PaymentResponse fallBackPayment(PaymentRequest req, Throwable t) {
-        log.warn("Payment CircuitBreaker fallback activated for inquiryRefId: {}", req.getInquiryRefId(), t);
-        return PaymentResponse.builder()
-            .paymentId("fallback-" + req.getInquiryRefId())
-            .status(PaymentStatus.FAILED)
-            .build();
     }
 }
 
