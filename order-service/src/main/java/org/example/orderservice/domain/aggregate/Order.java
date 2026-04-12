@@ -1,9 +1,8 @@
 package org.example.orderservice.domain.aggregate;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.example.orderservice.domain.OrderStatus;
+import lombok.*;
+import org.example.orderservice.domain.enums.OrderStatus;
 import org.example.orderservice.domain.vo.*;
 import org.example.orderservice.integration.payment.dto.DeliveryStatus;
 import org.example.orderservice.integration.payment.dto.PaymentStatus;
@@ -12,7 +11,10 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "orders")
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 @NoArgsConstructor
 public class Order {
     @Id
