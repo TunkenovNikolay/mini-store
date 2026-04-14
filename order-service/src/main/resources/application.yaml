@@ -93,5 +93,5 @@ rabbitmq:
 kafka:
   service:
     order:
-      order-payment-topic: order.payment
+      order-payment-delivery-topic: order.payment
       delivery-confirmation-topic: delivery.confirmation

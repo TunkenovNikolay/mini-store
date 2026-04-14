@@ -1,4 +1,4 @@
-package org.example.orderservice.domain;
+package org.example.orderservice.domain.enums;
 
 import lombok.RequiredArgsConstructor;
 

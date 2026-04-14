@@ -1,8 +1,12 @@
-package org.example.orderservice.service;
+package org.example.orderservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.orderservice.domain.OrderStatus;
+import org.example.orderservice.domain.entity.async.AsyncMessage;
+import org.example.orderservice.domain.enums.AsyncMessageStatus;
+import org.example.orderservice.domain.enums.AsyncMessageType;
+import org.example.orderservice.service.AsyncMessageService;
+import org.example.orderservice.domain.enums.OrderStatus;
 import org.example.orderservice.domain.aggregate.Order;
 import org.example.orderservice.domain.dto.OrderDto;
 import org.example.orderservice.domain.dto.OrderRequest;
@@ -19,11 +23,14 @@ import org.example.orderservice.integration.payment.dto.PaymentRequest;
 import org.example.orderservice.integration.payment.dto.PaymentStatus;
 import org.example.orderservice.mapper.OrderMapper;
 import org.example.orderservice.repository.OrderRepository;
+import org.example.orderservice.service.OrderService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -33,10 +40,12 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitMqPaymentServiceProperties rabbitMqPaymentServiceProperties;
-    private final KafkaTemplate<String, DeliveryRequestMessage> kafkaTemplate;
+    private final JsonMapper mapper;
 
-    @Value("${kafka.service.order.order-payment-topic}")
-    private String appointmentBookedTopic;
+    private final AsyncMessageService asyncMessageService;
+
+    @Value("${kafka.service.order.order-payment-delivery-topic}")
+    private String orderPaymentDeliveryTopic;
 
     @Override
     public Order getOrder(String orderId) {
@@ -123,13 +132,23 @@ public class OrderServiceImpl implements OrderService {
 
     private void sendOrderPaymentMessage(Order order) {
         DeliveryRequestMessage deliveryRequestMessage = orderMapper.toDeliveryRequestMessage(order);
-        kafkaTemplate.send(appointmentBookedTopic, order.getId().toString(), deliveryRequestMessage);
+        //kafkaTemplate.send(orderPaymentDeliveryTopic, order.getId().toString(), deliveryRequestMessage);
+
+        AsyncMessage asyncMessage = AsyncMessage.builder()
+            .id(UUID.randomUUID().toString())
+            .topic(orderPaymentDeliveryTopic)
+            .value(mapper.writeValueAsString(deliveryRequestMessage))
+            .type(AsyncMessageType.OUTBOX)
+            .status(AsyncMessageStatus.CREATED)
+            .build();
+
+        asyncMessageService.saveMessage(asyncMessage);
     }
 
     @Override
-    public void updateDeliveryStatus(String orderRefId, DeliveryStatus deliveryStatus) {
-        Order order = orderRepository.findByOrderId_OrderId(orderRefId)
-            .orElseThrow(() -> new ServiceException(ErrorMessage.ORDER_NOT_EXIST, orderRefId));
+    public void updateDeliveryStatus(String orderId, DeliveryStatus deliveryStatus) {
+        Order order = orderRepository.findByOrderId_OrderId(orderId)
+            .orElseThrow(() -> new ServiceException(ErrorMessage.ORDER_NOT_EXIST, orderId));
         order.setDeliveryStatus(deliveryStatus);
 
         orderRepository.save(order);
