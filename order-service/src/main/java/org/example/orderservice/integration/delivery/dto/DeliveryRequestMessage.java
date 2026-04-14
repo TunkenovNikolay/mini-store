@@ -1,4 +1,4 @@
-package org.example.orderservice.integration.payment.dto;
+package org.example.orderservice.integration.delivery.dto;
 
 import java.io.Serializable;
 

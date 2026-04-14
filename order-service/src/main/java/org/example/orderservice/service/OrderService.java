@@ -3,7 +3,7 @@ package org.example.orderservice.service;
 import org.example.orderservice.domain.aggregate.Order;
 import org.example.orderservice.domain.dto.OrderDto;
 import org.example.orderservice.domain.dto.OrderRequest;
-import org.example.orderservice.integration.payment.dto.DeliveryStatus;
+import org.example.orderservice.integration.delivery.dto.DeliveryStatus;
 import org.example.orderservice.integration.payment.dto.PaymentStatus;
 
 public interface OrderService {

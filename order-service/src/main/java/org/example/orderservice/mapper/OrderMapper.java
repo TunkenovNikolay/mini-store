@@ -2,7 +2,7 @@ package org.example.orderservice.mapper;
 
 import org.example.orderservice.domain.aggregate.Order;
 import org.example.orderservice.domain.dto.OrderDto;
-import org.example.orderservice.integration.payment.dto.DeliveryRequestMessage;
+import org.example.orderservice.integration.delivery.dto.DeliveryRequestMessage;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

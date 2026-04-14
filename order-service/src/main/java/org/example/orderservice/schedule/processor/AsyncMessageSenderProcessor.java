@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.orderservice.domain.entity.async.AsyncMessage;
 import org.example.orderservice.service.AsyncMessageService;
-import org.example.orderservice.integration.payment.dto.DeliveryRequestMessage;
+import org.example.orderservice.integration.delivery.dto.DeliveryRequestMessage;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

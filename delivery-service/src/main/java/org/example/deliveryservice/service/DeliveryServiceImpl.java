@@ -2,6 +2,8 @@ package org.example.deliveryservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.example.deliveryservice.domain.aggregate.Delivery;
 import org.example.deliveryservice.domain.dto.CreateDeliveryRequest;
 import org.example.deliveryservice.domain.dto.DeliveryDto;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -57,11 +60,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         Delivery savedDelivery = deliveryRepository.save(delivery);
         log.info("Insurance confirmation created with ID: {}", delivery.getId());
 
-        DeliveryResponseMessage responseMessage = deliveryMapper.toDeliveryResponseMessage(delivery);
-        kafkaTemplate.send(deliveryConfirmationTopic, delivery.getId().toString(), responseMessage);
-        log.info("Sent delivery confirmation creation message to Kafka for ID: {}", delivery.getId());
-
+        sendMessage(delivery);
         return savedDelivery;
+    }
+
+    private void sendMessage(Delivery delivery) {
+        DeliveryResponseMessage responseMessage = deliveryMapper.toDeliveryResponseMessage(delivery);
+
+        // Заголовок с идемпотентным ключем
+        RecordHeader header = new RecordHeader("X-Idempotency-Key", UUID.randomUUID().toString().getBytes());
+
+        // Создаем ProducerRecord для полной кастомизации отправки сообщения в Kafka
+        var producerRecord = new ProducerRecord<String, DeliveryResponseMessage>(
+            deliveryConfirmationTopic, null, null, null, responseMessage, List.of(header));
+        kafkaTemplate.send(producerRecord);
+        log.info("Sent delivery confirmation creation message to Kafka for ID: {}", delivery.getId());
     }
 
     @Override
