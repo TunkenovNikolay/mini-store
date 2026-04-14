@@ -3,8 +3,7 @@ package org.example.orderservice.integration.payment.kafka.listener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.example.orderservice.integration.payment.dto.DeliveryResponseMessage;
-import org.example.orderservice.mapper.OrderMapper;
+import org.example.orderservice.integration.delivery.dto.DeliveryResponseMessage;
 import org.example.orderservice.service.OrderService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
 public class DeliveryListener {
 
     private final OrderService orderService;
-    private final OrderMapper orderMapper;
 
     /**
      * Метод обработки сообщения о назначении доставки из Kafka.

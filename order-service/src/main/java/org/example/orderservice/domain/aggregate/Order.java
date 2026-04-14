@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.orderservice.domain.enums.OrderStatus;
 import org.example.orderservice.domain.vo.*;
-import org.example.orderservice.integration.payment.dto.DeliveryStatus;
+import org.example.orderservice.integration.delivery.dto.DeliveryStatus;
 import org.example.orderservice.integration.payment.dto.PaymentStatus;
 
 import java.math.BigDecimal;
